@@ -29,6 +29,7 @@ class createWin {
     win = new BrowserWindow({
       width: 800,
       height: 600,
+      frame: true,
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,

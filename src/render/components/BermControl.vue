@@ -17,9 +17,12 @@
 
 <style lang="less" scoped>
 .BermControl {
+  position: fixed;
+  top: 0;
   width: 100%;
+  background-color: rgab(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
   overflow: hidden;
-  background-color: rgb(38, 41, 39);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,8 +1,8 @@
-// const fs = require("fs");
-import fs from "fs";
+const fs = require("fs");
+// import fs from "fs";
 const path = require("path");
 
-import { ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import configs from "../config.sec";
 
 const metas = ref([]);
@@ -11,7 +11,6 @@ const menus = [
   { title: "模特", id: "models", icon: "el-icon-s-custom" },
   { title: "时刻", id: "moments", icon: "el-icon-time" },
   { title: "标签", id: "tags", icon: "el-icon-collection-tag" },
-  { title: "探索", id: "explore", icon: "el-icon-discover" },
 ];
 const randomArray = ref<Array<Number>>([]);
 const indexStatus = ref({
@@ -19,7 +18,7 @@ const indexStatus = ref({
   statusTitle: "出错啦",
   statusMessage: "出现了不可预知的错误，请退出重试。",
 });
-const activeID = ref("explore");
+const activeID = ref("recent");
 const playingStatus = ref({
   playing: false,
   id: 0,
@@ -27,10 +26,6 @@ const playingStatus = ref({
   current: 0,
   poster: "",
 });
-const errorMaps = {
-  "no-such-file": () => {},
-};
-
 function loadMeta() {
   try {
     if (fs.existsSync(configs.metas_entry)) {
@@ -65,8 +60,52 @@ for (let i = 0; i < slices * slices; i++) {
   randomArray.value.push(random);
 }
 
+// 下面是视图直接使用的仓库
+const view_models = computed(() => {
+  const models: any[] = [];
+  metas.value.map((meta: any) => {
+    meta.scenes.map((scene: any) => {
+      scene.models.map((model: any) => {
+        models.push(model.name);
+      });
+    });
+  });
+  return Array.from(new Set(models));
+});
+const view_moments = computed(() => {
+  const moments: any[] = [];
+  metas.value.map((meta: any) => {
+    meta.moments.map((moment: any) => {
+      moment.id = meta.id;
+      moments.push(moment);
+    });
+  });
+  return moments;
+});
+const view_tags = computed(() => {
+  let tags: any[] = [];
+  metas.value.map((meta: any) => {
+    meta.scenes.map((scene: any) => {
+      let _tags = Array.from(scene.tags);
+      _tags.map((tag) => tags.push({ name: tag, type: "scene" }));
+      scene.models.map((model: any) => {
+        let _tags = Array.from(model.tags);
+        _tags.map((tag) => tags.push({ name: tag, type: "model" }));
+      });
+    });
+  });
+  tags = tags.reduce(function (item, next) {
+    tags[next.name] ? "" : (tags[next.name] = true && item.push(next));
+    return item;
+  }, []);
+  return tags;
+});
+
 export {
   metas,
+  view_models,
+  view_moments,
+  view_tags,
   randomArray,
   slices,
   playingStatus,

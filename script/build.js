@@ -32,9 +32,7 @@ const watchFunc = function () {
     if (ev.code === "END") {
       // init-未启动、started-第一次启动、restarted-重新启动
       electron.electronState === "init" ? electron.start() : electron.restart();
-    } else if (ev.code === "ERROR") {
-      console.log(ev.error);
-    }
+    } else if (ev.code === "ERROR") console.log(ev.error);
   });
 };
 
@@ -52,7 +50,7 @@ if (argv.watch) {
         const serverSocket = net.connect(port || 80, hostname, () => {
           watchFunc();
         });
-        serverSocket.on("error", (e) => {
+        serverSocket.on("error", () => {
           console.log(err);
           process.exit(1);
         });
